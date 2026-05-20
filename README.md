@@ -149,8 +149,8 @@ I am a **Systems Programmer, AI Engineer, and Full-Stack Developer** passionate 
 ## 📊 GitHub Analytics
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=Felix-au&show_icons=true&theme=nord&count_private=true" alt="Felix-au's GitHub Stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Felix-au&layout=compact&theme=nord" alt="Top Langs" />
+  <img src="https://github-readme-stats-fast.vercel.app/api?username=Felix-au&show_icons=true&theme=nord&count_private=true" alt="Felix-au's GitHub Stats" />
+  <img src="https://github-readme-stats-fast.vercel.app/api/top-langs/?username=Felix-au&layout=compact&theme=nord" alt="Top Langs" />
 </p>
 
 ---
