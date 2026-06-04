@@ -1,257 +1,53 @@
-
-      <svg
-        width="300"
-        height="165"
-        viewBox="0 0 300 165"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-labelledby="descId"
-      >
-        <title id="titleId"></title>
-        <desc id="descId"></desc>
-        <style>
-          .header {
-            font: 600 18px 'Segoe UI', Ubuntu, "Helvetica Neue", Sans-Serif;
-            fill: #81a1c1;
-            animation: fadeInAnimation 0.8s ease-in-out forwards;
-          }
-          @supports(-moz-appearance: auto) {
-            /* Selector detects Firefox */
-            .header { font-size: 15.5px; }
-          }
-          
-    .lang-name {
-      font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #d8dee9;
-    }
-    .stagger {
-      opacity: 0;
-      animation: fadeInAnimation 0.3s ease-in-out forwards;
-    }
-    .lang-progress {
-      animation: growWidthAnimation 0.6s ease-in-out forwards;
-    }
-    #rect-mask rect {
-      animation: slideInAnimation 1s ease-in-out forwards;
-    }
-    @keyframes progressAnimation {
-      from {
-        width: 0;
-      }
-    }
-    @keyframes slideInAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: calc(100%-100px);
-      }
-    }
-    @keyframes growWidthAnimation {
-      from {
-        width: 0;
-      }
-      to {
-        width: 100%;
-      }
-    }
-    @keyframes fadeInAnimation {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
+<svg width="350" height="280" viewBox="0 0 350 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .title { font: bold 18px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
+    .lang-name { font: bold 12px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
+    .lang-percent { font: 12px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
+  </style>
+  <rect width="348" height="278" x="1" y="1" rx="5" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
+  <text x="25" y="35" class="title">Most Used Languages</text>
   
+  <svg x="25" y="55" width="300" height="12">
+    <rect width="300" height="12" rx="6" fill="#3b4252"/>
+    <clipPath id="bar-clip">
+      <rect width="300" height="12" rx="6" />
+    </clipPath>
+    <g clip-path="url(#bar-clip)">
+      <rect x="0.0" width="111.1" height="12" fill="#b07219" />
+<rect x="111.1" width="107.8" height="12" fill="#3178c6" />
+<rect x="219.0" width="40.2" height="12" fill="#f1e05a" />
+<rect x="259.1" width="17.6" height="12" fill="#3572A5" />
+<rect x="276.7" width="17.0" height="12" fill="#663399" />
+<rect x="293.7" width="5.9" height="12" fill="#e34c26" />
 
-          
-      /* Animations */
-      @keyframes scaleInAnimation {
-        from {
-          transform: translate(-5px, 5px) scale(0);
-        }
-        to {
-          transform: translate(-5px, 5px) scale(1);
-        }
-      }
-      @keyframes fadeInAnimation {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @keyframes slideInAnimation {
-        from {
-          transform: translateX(-10px);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      @keyframes bounceInAnimation {
-        0% {
-          transform: scale(0.3);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(1.05);
-        }
-        70% {
-          transform: scale(0.9);
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-    
-          
-        </style>
-
-        
-
-        <rect
-          data-testid="card-bg"
-          x="0.5"
-          y="0.5"
-          rx="4.5"
-          height="99%"
-          stroke="#e4e2e2"
-          width="299"
-          fill="#2e3440"
-          stroke-opacity="1.0"
-        />
-
-        
-      <g
-        data-testid="card-title"
-        transform="translate(25, 35)"
-      >
-        <g transform="translate(0, 0)">
-      <text
-        x="0"
-        y="0"
-        class="header"
-        data-testid="header"
-      >Most Used Languages</text>
     </g>
-      </g>
-    
-
-        <g
-          data-testid="main-card-body"
-          transform="translate(0, 55)"
-        >
-          
-    <svg data-testid="lang-items" x="25">
-      
+  </svg>
   
-      <mask id="rect-mask">
-        <rect x="0" y="0" width="250" height="8" fill="white" rx="5"/>
-      </mask>
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="0.00"
-          y="0"
-          width="71.28"
-          height="8"
-          fill="#DA5B0B"
-        />
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="71.28"
-          y="0"
-          width="67.79"
-          height="8"
-          fill="#b07219"
-        />
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="139.08"
-          y="0"
-          width="65.76"
-          height="8"
-          fill="#3178c6"
-        />
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="204.84"
-          y="0"
-          width="24.04"
-          height="8"
-          fill="#f1e05a"
-        />
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="228.88"
-          y="0"
-          width="10.74"
-          height="8"
-          fill="#3572A5"
-        />
-      
-        <rect
-          mask="url(#rect-mask)"
-          data-testid="lang-progress"
-          x="239.63"
-          y="0"
-          width="10.37"
-          height="8"
-          fill="#663399"
-        />
-      
+  <g transform="translate(25, 90)">
     
-  <g transform="translate(0, 25)">
-    <g transform="translate(0, 0)"><g transform="translate(0, 0)">
-    <g class="stagger" style="animation-delay: 450ms">
-      <circle cx="5" cy="6" r="5" fill="#DA5B0B" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">Jupyter Notebook 28.51%</text>
-    </g>
-  </g><g transform="translate(0, 25)">
-    <g class="stagger" style="animation-delay: 600ms">
+    <g transform="translate(0, 0)">
       <circle cx="5" cy="6" r="5" fill="#b07219" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">Java 27.12%</text>
+      <text x="18" y="10" class="lang-name">Java <tspan class="lang-percent">37.05%</tspan></text>
     </g>
-  </g><g transform="translate(0, 50)">
-    <g class="stagger" style="animation-delay: 750ms">
+    <g transform="translate(160, 0)">
       <circle cx="5" cy="6" r="5" fill="#3178c6" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">TypeScript 26.31%</text>
+      <text x="18" y="10" class="lang-name">TypeScript <tspan class="lang-percent">35.94%</tspan></text>
     </g>
-  </g></g><g transform="translate(150, 0)"><g transform="translate(0, 0)">
-    <g class="stagger" style="animation-delay: 900ms">
+    <g transform="translate(0, 25)">
       <circle cx="5" cy="6" r="5" fill="#f1e05a" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">JavaScript 9.62%</text>
+      <text x="18" y="10" class="lang-name">JavaScript <tspan class="lang-percent">13.39%</tspan></text>
     </g>
-  </g><g transform="translate(0, 25)">
-    <g class="stagger" style="animation-delay: 1050ms">
+    <g transform="translate(160, 25)">
       <circle cx="5" cy="6" r="5" fill="#3572A5" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">Python 4.30%</text>
+      <text x="18" y="10" class="lang-name">Python <tspan class="lang-percent">5.87%</tspan></text>
     </g>
-  </g><g transform="translate(0, 50)">
-    <g class="stagger" style="animation-delay: 1200ms">
+    <g transform="translate(0, 50)">
       <circle cx="5" cy="6" r="5" fill="#663399" />
-      <text data-testid="lang-name" x="15" y="10" class="lang-name">CSS 4.15%</text>
+      <text x="18" y="10" class="lang-name">CSS <tspan class="lang-percent">5.67%</tspan></text>
     </g>
-  </g></g>
+    <g transform="translate(160, 50)">
+      <circle cx="5" cy="6" r="5" fill="#e34c26" />
+      <text x="18" y="10" class="lang-name">HTML <tspan class="lang-percent">1.96%</tspan></text>
+    </g>
   </g>
-  
-    </svg>
-  
-        </g>
-      </svg>
-    
+</svg>
