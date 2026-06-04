@@ -149,7 +149,8 @@ I am a **Systems Programmer, AI Engineer, and Full-Stack Developer** passionate 
 ## 📊 GitHub Analytics
 
 <p align="center">
-  <img src="github-metrics.svg" alt="Felix-au's GitHub Stats" />
+  <img src="github-stats.svg" alt="Felix-au's GitHub Stats" />
+  <img src="github-top-langs.svg" alt="Top Langs" />
 </p>
 
 ---
