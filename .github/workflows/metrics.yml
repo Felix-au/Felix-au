@@ -32,6 +32,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add github-stats.svg github-top-langs.svg github-streak.svg
+          git add github-stats.svg github-top-langs.svg
           git commit -m "Update README cards" || exit 0
           git push
