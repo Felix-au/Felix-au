@@ -374,43 +374,43 @@ async function main() {
   </g>
   
   <!-- COLUMN 2 (Rank Badge) -->
-  <g transform="translate(320, 120)">
+  <g transform="translate(315, 120)">
     <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
     <circle cx="0" cy="0" r="45" class="grade-circle" stroke-dasharray="283" stroke-dashoffset="${strokeDashoffset.toFixed(1)}" transform="rotate(-90)" />
     <text x="0" y="0" class="grade-text">${grade}</text>
   </g>
   
   <!-- COLUMN 3 -->
-  <g transform="translate(405, 55)">
+  <g transform="translate(395, 55)">
     <!-- Total Contributions -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
     <text x="22" y="17" class="label">Total Contributions:</text>
-    <text x="175" y="17" class="value" text-anchor="end">${totalContributionsPastYear}</text>
+    <text x="185" y="17" class="value" text-anchor="end">${totalContributionsPastYear}</text>
     
     <!-- Total Watchers -->
     <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
     <text x="22" y="40" class="label">Total Watchers:</text>
-    <text x="175" y="40" class="value" text-anchor="end">${watchers}</text>
+    <text x="185" y="40" class="value" text-anchor="end">${watchers}</text>
     
     <!-- Repositories -->
     <svg x="0" y="51" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
     <text x="22" y="63" class="label">Repositories:</text>
-    <text x="175" y="63" class="value" text-anchor="end">${publicReposCount}</text>
+    <text x="185" y="63" class="value" text-anchor="end">${publicReposCount}</text>
     
     <!-- Issues -->
     <svg x="0" y="74" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
     <text x="22" y="86" class="label">Issues:</text>
-    <text x="175" y="86" class="value" text-anchor="end">${issues}</text>
+    <text x="185" y="86" class="value" text-anchor="end">${issues}</text>
     
     <!-- Code Reviews -->
     <svg x="0" y="97" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2Zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 5.75ZM5.75 8h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/></svg>
     <text x="22" y="109" class="label">Code Reviews:</text>
-    <text x="175" y="109" class="value" text-anchor="end">${reviews}</text>
+    <text x="185" y="109" class="value" text-anchor="end">${reviews}</text>
     
     <!-- Downloads -->
     <svg x="0" y="120" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.75 14A.75.75 0 0 1 3.5 13.25h9a.75.75 0 0 1 0 1.5h-9A.75.75 0 0 1 2.75 14Zm5.25-10.25V9.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06L7 9.19V3.75a.75.75 0 0 1 1.5 0Z"/></svg>
     <text x="22" y="132" class="label">Downloads:</text>
-    <text x="175" y="132" class="value" text-anchor="end">${totalDownloads}</text>
+    <text x="185" y="132" class="value" text-anchor="end">${totalDownloads}</text>
   </g>
   
   <!-- Divider -->
@@ -419,7 +419,7 @@ async function main() {
   <!-- ROW 2: Centered Streak Section -->
   <g transform="translate(0, 200)">
     <!-- Current Streak -->
-    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">${currentStreak} Days</tspan></text>
+    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">${currentStreak} Days</tspan> <tspan class="streak-range">(${currentStreakRange})</tspan></text>
     
     <!-- Vertical Divider -->
     <line x1="300" y1="8" x2="300" y2="38" class="divider" />
