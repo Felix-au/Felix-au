@@ -1,6 +1,18 @@
 const fs = require('fs');
 
-// Load token and username from environment
+// Load env variables from .env file if running locally
+if (fs.existsSync('.env')) {
+  const envContent = fs.readFileSync('.env', 'utf-8');
+  envContent.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const [key, ...valueParts] = trimmed.split('=');
+    if (key && valueParts.length > 0) {
+      process.env[key.trim()] = valueParts.join('=').trim();
+    }
+  });
+}
+
 const token = process.env.PRIMARY_TOKEN;
 const username = process.env.PRIMARY_USER || 'Felix-au';
 
@@ -37,6 +49,16 @@ query {
             ... on Commit {
               history {
                 totalCount
+              }
+            }
+          }
+        }
+        releases(first: 20) {
+          totalCount
+          nodes {
+            releaseAssets(first: 20) {
+              nodes {
+                downloadCount
               }
             }
           }
@@ -105,6 +127,23 @@ async function main() {
   repos.forEach(repo => {
     if (repo.defaultBranchRef && repo.defaultBranchRef.target && repo.defaultBranchRef.target.history) {
       commitsOverall += repo.defaultBranchRef.target.history.totalCount;
+    }
+  });
+  
+  let totalReleases = 0;
+  let totalDownloads = 0;
+  repos.forEach(repo => {
+    if (repo.releases) {
+      totalReleases += repo.releases.totalCount || 0;
+      if (repo.releases.nodes) {
+        repo.releases.nodes.forEach(rel => {
+          if (rel.releaseAssets && rel.releaseAssets.nodes) {
+            rel.releaseAssets.nodes.forEach(asset => {
+              totalDownloads += asset.downloadCount || 0;
+            });
+          }
+        });
+      }
     }
   });
   
@@ -243,118 +282,13 @@ async function main() {
   const totalContributionsPastYear = calendar.totalContributions;
   
   // 5. Render SVGs
-  console.log(`🎨 Rendering Custom SVG widgets...`);
+  console.log(`🎨 Rendering Custom Unified SVG widget...`);
   
-  // SVG 1: github-stats.svg (Stats Dashboard - Unified with Streak Stats at the bottom)
-  const statsSvg = `
-<svg width="495" height="340" viewBox="0 0 495 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .title { font: bold 18px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
-    .label { font: 14px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
-    .value { font: bold 14px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
-    .grade-text { font: bold 32px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; text-anchor: middle; dominant-baseline: middle; }
-    .grade-circle { stroke: #88c0d0; stroke-width: 6; fill: none; }
-    .grade-circle-bg { stroke: #3b4252; stroke-width: 6; fill: none; }
-    .icon { fill: #81a1c1; }
-    
-    .streak-title { font: 11px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; text-anchor: middle; }
-    .streak-val { font: bold 20px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; text-anchor: middle; }
-    .streak-range { font: 10px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; text-anchor: middle; }
-    .divider { stroke: #3b4252; stroke-width: 1; }
-  </style>
-  <rect width="493" height="338" x="1" y="1" rx="5" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
-  
-  <text x="25" y="35" class="title">${name}'s GitHub Stats</text>
-  
-  <g transform="translate(25, 55)">
-    <!-- Stars -->
-    <svg x="0" y="0" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
-    <text x="22" y="11" class="label">Total Stars:</text>
-    <text x="210" y="11" class="value">${stars}</text>
-    
-    <!-- Watchers -->
-    <svg x="0" y="18" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
-    <text x="22" y="29" class="label">Total Watchers:</text>
-    <text x="210" y="29" class="value">${watchers}</text>
-    
-    <!-- Forks -->
-    <svg x="0" y="36" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM4.25 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 1.5a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z"/></svg>
-    <text x="22" y="47" class="label">Total Forks:</text>
-    <text x="210" y="47" class="value">${forks}</text>
-    
-    <!-- Commits this year -->
-    <svg x="0" y="54" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M10.5 7.75a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm1.5 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
-    <text x="22" y="65" class="label">Commits (this year):</text>
-    <text x="210" y="65" class="value">${commitsThisYear}</text>
-    
-    <!-- Commits overall -->
-    <svg x="0" y="72" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5ZM5 3.75A.75.75 0 0 1 5.75 3h5.5a.75.75 0 0 1 0 1.5h-5.5A.75.75 0 0 1 5 3.75ZM5.75 6h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1 0-1.5ZM4.25 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 1.5a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z"/></svg>
-    <text x="22" y="83" class="label">Commits (overall):</text>
-    <text x="210" y="83" class="value">${commitsOverall}</text>
-    
-    <!-- Pull Requests -->
-    <svg x="0" y="90" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.292a.25.25 0 0 1-.427.177L7.177 3.073ZM5.75 2h-1.5a2.25 2.25 0 0 0-2.25 2.25v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-1.5a.75.75 0 0 1 1.5 0v1.5a3.75 3.75 0 0 1-3.75 3.75h-7.5A3.75 3.75 0 0 1 .5 11.75v-7.5A3.75 3.75 0 0 1 4.25.5h1.5a.75.75 0 0 1 0 1.5Zm6.48 4.28a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 0Z"/></svg>
-    <text x="22" y="101" class="label">Pull Requests:</text>
-    <text x="210" y="101" class="value">${prs}</text>
-    
-    <!-- Code Reviews -->
-    <svg x="0" y="108" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2Zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 5.75ZM5.75 8h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/></svg>
-    <text x="22" y="119" class="label">Code Reviews:</text>
-    <text x="210" y="119" class="value">${reviews}</text>
-    
-    <!-- Issues -->
-    <svg x="0" y="126" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
-    <text x="22" y="137" class="label">Issues:</text>
-    <text x="210" y="137" class="value">${issues}</text>
-    
-    <!-- Contributed to -->
-    <svg x="0" y="144" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
-    <text x="22" y="155" class="label">Contributed to:</text>
-    <text x="210" y="155" class="value">${contributedTo}</text>
-  </g>
-  
-  <!-- Grade Circle on the right -->
-  <g transform="translate(390, 135)">
-    <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
-    <circle cx="0" cy="0" r="45" class="grade-circle" stroke-dasharray="283" stroke-dashoffset="${strokeDashoffset.toFixed(1)}" transform="rotate(-90)" />
-    <text x="0" y="0" class="grade-text">${grade}</text>
-  </g>
-  
-  <line x1="25" y1="230" x2="470" y2="230" class="divider" />
-  
-  <!-- Streak Stats (unified at the bottom) -->
-  <!-- Column 1: Total Contributions -->
-  <g transform="translate(82.5, 240)">
-    <text class="streak-title" y="20">Total Contributions</text>
-    <text class="streak-val" y="48">${totalContributionsPastYear}</text>
-    <text class="streak-range" y="65">past year</text>
-  </g>
-  
-  <line x1="165" y1="255" x2="165" y2="310" class="divider" />
-  
-  <!-- Column 2: Current Streak -->
-  <g transform="translate(247.5, 240)">
-    <text class="streak-title" y="20">Current Streak</text>
-    <text class="streak-val" y="48">${currentStreak} Days</text>
-    <text class="streak-range" y="65">${currentStreakRange}</text>
-  </g>
-  
-  <line x1="330" y1="255" x2="330" y2="310" class="divider" />
-  
-  <!-- Column 3: Longest Streak -->
-  <g transform="translate(412.5, 240)">
-    <text class="streak-title" y="20">Longest Streak</text>
-    <text class="streak-val" y="48">${longestStreak} Days</text>
-    <text class="streak-range" y="65">${longestStreakRange}</text>
-  </g>
-</svg>
-  `;
-
   // Process top languages bar rects and grid items
   let currentX = 0;
   let progressBarRects = '';
   topLangs.forEach(lang => {
-    const width = totalLangSize > 0 ? (lang.size / totalLangSize) * 300 : 0;
+    const width = totalLangSize > 0 ? (lang.size / totalLangSize) * 550 : 0;
     progressBarRects += `<rect x="${currentX.toFixed(1)}" width="${width.toFixed(1)}" height="12" fill="${lang.color || '#cccccc'}" />\n`;
     currentX += width;
   });
@@ -362,10 +296,10 @@ async function main() {
   let langGridList = '';
   topLangs.forEach((lang, index) => {
     const percent = totalLangSize > 0 ? ((lang.size / totalLangSize) * 100).toFixed(2) : '0.00';
-    const row = Math.floor(index / 2);
-    const col = index % 2;
-    const colX = col * 160;
-    const rowY = row * 25;
+    const row = Math.floor(index / 3);
+    const col = index % 3;
+    const colX = col * 190;
+    const rowY = row * 22;
     
     langGridList += `
     <g transform="translate(${colX}, ${rowY})">
@@ -374,37 +308,129 @@ async function main() {
     </g>`;
   });
 
-  // SVG 2: github-top-langs.svg
-  const langsSvg = `
-<svg width="350" height="280" viewBox="0 0 350 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  const statsSvg = `
+<svg width="600" height="380" viewBox="0 0 600 380" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .title { font: bold 18px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
+    .title { font: bold 16px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
+    .label { font: 13px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
+    .value { font: bold 13px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
+    .range { font: 10px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; opacity: 0.8; }
+    
+    .grade-text { font: bold 32px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; text-anchor: middle; dominant-baseline: middle; }
+    .grade-circle { stroke: #88c0d0; stroke-width: 6; fill: none; }
+    .grade-circle-bg { stroke: #3b4252; stroke-width: 6; fill: none; }
+    
+    .icon { fill: #81a1c1; }
+    .divider { stroke: #3b4252; stroke-width: 1; }
+    
+    .lang-title { font: bold 15px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
     .lang-name { font: bold 12px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
     .lang-percent { font: 12px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
   </style>
-  <rect width="348" height="278" x="1" y="1" rx="5" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
-  <text x="25" y="35" class="title">Most Used Languages</text>
+  <rect width="598" height="378" x="1" y="1" rx="6" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
   
-  <svg x="25" y="55" width="300" height="12">
-    <rect width="300" height="12" rx="6" fill="#3b4252"/>
-    <clipPath id="bar-clip">
-      <rect width="300" height="12" rx="6" />
-    </clipPath>
-    <g clip-path="url(#bar-clip)">
-      ${progressBarRects}
+  <text x="25" y="35" class="title">${name}'s GitHub Stats</text>
+  
+  <!-- COLUMN 1 -->
+  <g transform="translate(25, 55)">
+    <!-- Commits this year -->
+    <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M10.5 7.75a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm1.5 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
+    <text x="22" y="17" class="label">Commits (this year):</text>
+    <text x="220" y="17" class="value" text-anchor="end">${commitsThisYear}</text>
+    
+    <!-- Total Contributions -->
+    <svg x="0" y="30" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
+    <text x="22" y="42" class="label">Total Contributions:</text>
+    <text x="220" y="42" class="value" text-anchor="end">${totalContributionsPastYear}</text>
+    
+    <!-- Contributed to -->
+    <svg x="0" y="55" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
+    <text x="22" y="67" class="label">Contributed to:</text>
+    <text x="220" y="67" class="value" text-anchor="end">${contributedTo}</text>
+    
+    <!-- Current Streak -->
+    <svg x="0" y="80" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
+    <text x="22" y="92" class="label">Current Streak:</text>
+    <text x="220" y="92" class="value" text-anchor="end">${currentStreak} Days</text>
+    <text x="22" y="105" class="range">${currentStreakRange}</text>
+    
+    <!-- Longest Streak -->
+    <svg x="0" y="115" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
+    <text x="22" y="127" class="label">Longest Streak:</text>
+    <text x="220" y="127" class="value" text-anchor="end">${longestStreak} Days</text>
+    <text x="22" y="140" class="range">${longestStreakRange}</text>
+    
+    <!-- Releases -->
+    <svg x="0" y="150" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.5 0A2.5 2.5 0 0 0 0 2.5v11A2.5 2.5 0 0 0 2.5 16h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 13.5 0h-11Zm0 1.5h11a1 1 0 0 1 1 1v6.75l-4-4-3 3-2-2-3 3v-7.75a1 1 0 0 1 1-1Z"/></svg>
+    <text x="22" y="162" class="label">Releases:</text>
+    <text x="220" y="162" class="value" text-anchor="end">${totalReleases} (${totalDownloads} downloads)</text>
+  </g>
+  
+  <!-- COLUMN 2 (Rank Badge) -->
+  <g transform="translate(300, 140)">
+    <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
+    <circle cx="0" cy="0" r="45" class="grade-circle" stroke-dasharray="283" stroke-dashoffset="${strokeDashoffset.toFixed(1)}" transform="rotate(-90)" />
+    <text x="0" y="0" class="grade-text">${grade}</text>
+  </g>
+  
+  <!-- COLUMN 3 -->
+  <g transform="translate(380, 55)">
+    <!-- Total Stars -->
+    <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+    <text x="22" y="17" class="label">Total Stars:</text>
+    <text x="195" y="17" class="value" text-anchor="end">${stars}</text>
+    
+    <!-- Total Watchers -->
+    <svg x="0" y="30" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
+    <text x="22" y="42" class="label">Total Watchers:</text>
+    <text x="195" y="42" class="value" text-anchor="end">${watchers}</text>
+    
+    <!-- Total Forks -->
+    <svg x="0" y="55" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM4.25 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 1.5a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z"/></svg>
+    <text x="22" y="67" class="label">Total Forks:</text>
+    <text x="195" y="67" class="value" text-anchor="end">${forks}</text>
+    
+    <!-- Pull Requests -->
+    <svg x="0" y="80" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.292a.25.25 0 0 1-.427.177L7.177 3.073ZM5.75 2h-1.5a2.25 2.25 0 0 0-2.25 2.25v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-1.5a.75.75 0 0 1 1.5 0v1.5a3.75 3.75 0 0 1-3.75 3.75h-7.5A3.75 3.75 0 0 1 .5 11.75v-7.5A3.75 3.75 0 0 1 4.25.5h1.5a.75.75 0 0 1 0 1.5Zm6.48 4.28a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 0Z"/></svg>
+    <text x="22" y="92" class="label">Pull Requests:</text>
+    <text x="195" y="92" class="value" text-anchor="end">${prs}</text>
+    
+    <!-- Code Reviews -->
+    <svg x="0" y="105" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2Zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 5.75ZM5.75 8h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/></svg>
+    <text x="22" y="117" class="label">Code Reviews:</text>
+    <text x="195" y="117" class="value" text-anchor="end">${reviews}</text>
+    
+    <!-- Issues -->
+    <svg x="0" y="130" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
+    <text x="22" y="142" class="label">Issues:</text>
+    <text x="195" y="142" class="value" text-anchor="end">${issues}</text>
+  </g>
+  
+  <!-- Divider -->
+  <line x1="25" y1="255" x2="575" y2="255" class="divider" />
+  
+  <!-- ROW 2: Most Used Languages -->
+  <g transform="translate(25, 275)">
+    <text x="0" y="0" class="lang-title">Most Used Languages</text>
+    
+    <svg x="0" y="10" width="550" height="12">
+      <rect width="550" height="12" rx="6" fill="#3b4252"/>
+      <clipPath id="bar-clip">
+        <rect width="550" height="12" rx="6" />
+      </clipPath>
+      <g clip-path="url(#bar-clip)">
+        ${progressBarRects}
+      </g>
+    </svg>
+    
+    <g transform="translate(0, 45)">
+      ${langGridList}
     </g>
-  </svg>
-  
-  <g transform="translate(25, 90)">
-    ${langGridList}
   </g>
 </svg>
   `;
 
-  // Write files out (only two files are active now: stats card and languages card)
   fs.writeFileSync('github-stats.svg', statsSvg.trim());
-  fs.writeFileSync('github-top-langs.svg', langsSvg.trim());
-  
   console.log(`✅ custom widgets generated successfully!`);
 }
 
