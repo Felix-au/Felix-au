@@ -371,6 +371,8 @@ async function main() {
     <svg x="0" y="120" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.5 0A2.5 2.5 0 0 0 0 2.5v11A2.5 2.5 0 0 0 2.5 16h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 13.5 0h-11Zm0 1.5h11a1 1 0 0 1 1 1v6.75l-4-4-3 3-2-2-3 3v-7.75a1 1 0 0 1 1-1Z"/></svg>
     <text x="22" y="132" class="label">Releases:</text>
     <text x="195" y="132" class="value" text-anchor="end">${totalReleases}</text>
+  </g>
+  
   <!-- COLUMN 2 (Rank Badge) -->
   <g transform="translate(295, 120)">
     <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
