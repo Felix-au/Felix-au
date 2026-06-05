@@ -26,6 +26,9 @@ query {
   viewer {
     name
     login
+    followers {
+      totalCount
+    }
     pullRequests {
       totalCount
     }
@@ -122,6 +125,8 @@ async function main() {
   const forks = repos.reduce((acc, curr) => acc + curr.forkCount, 0);
   const watchers = repos.reduce((acc, curr) => acc + curr.watchers.totalCount, 0);
   const commitsThisYear = viewer.contributionsCollection.totalCommitContributions;
+  const followers = viewer.followers.totalCount;
+  const publicReposCount = repos.filter(repo => !repo.isPrivate).length;
   
   let commitsOverall = 0;
   repos.forEach(repo => {
@@ -298,7 +303,7 @@ async function main() {
     const percent = totalLangSize > 0 ? ((lang.size / totalLangSize) * 100).toFixed(2) : '0.00';
     const row = Math.floor(index / 3);
     const col = index % 3;
-    const colX = col * 190;
+    const colX = col * 175;
     const rowY = row * 22;
     
     langGridList += `
@@ -309,12 +314,13 @@ async function main() {
   });
 
   const statsSvg = `
-<svg width="600" height="380" viewBox="0 0 600 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
     .title { font: bold 16px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; }
     .label { font: 13px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
     .value { font: bold 13px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
     .range { font: 10px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; opacity: 0.8; }
+    .streak-text { font: 12px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
     
     .grade-text { font: bold 32px 'Segoe UI', Ubuntu, sans-serif; fill: #88c0d0; text-anchor: middle; dominant-baseline: middle; }
     .grade-circle { stroke: #88c0d0; stroke-width: 6; fill: none; }
@@ -327,9 +333,10 @@ async function main() {
     .lang-name { font: bold 12px 'Segoe UI', Ubuntu, sans-serif; fill: #d8dee9; }
     .lang-percent { font: 12px 'Segoe UI', Ubuntu, sans-serif; fill: #e5e9f0; }
   </style>
-  <rect width="598" height="378" x="1" y="1" rx="6" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
+  <rect width="598" height="398" x="1" y="1" rx="6" fill="#2e3440" stroke="#3b4252" stroke-width="2"/>
   
-  <text x="25" y="35" class="title">${name}'s GitHub Stats</text>
+  <!-- Centered Title -->
+  <text x="300" y="35" class="title" text-anchor="middle">${name}'s GitHub Stats</text>
   
   <!-- COLUMN 1 -->
   <g transform="translate(25, 55)">
@@ -339,81 +346,95 @@ async function main() {
     <text x="220" y="17" class="value" text-anchor="end">${commitsThisYear}</text>
     
     <!-- Total Contributions -->
-    <svg x="0" y="30" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
-    <text x="22" y="42" class="label">Total Contributions:</text>
-    <text x="220" y="42" class="value" text-anchor="end">${totalContributionsPastYear}</text>
+    <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
+    <text x="22" y="40" class="label">Total Contributions:</text>
+    <text x="220" y="40" class="value" text-anchor="end">${totalContributionsPastYear}</text>
     
     <!-- Contributed to -->
-    <svg x="0" y="55" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
-    <text x="22" y="67" class="label">Contributed to:</text>
-    <text x="220" y="67" class="value" text-anchor="end">${contributedTo}</text>
+    <svg x="0" y="51" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
+    <text x="22" y="63" class="label">Contributed to:</text>
+    <text x="220" y="63" class="value" text-anchor="end">${contributedTo}</text>
     
-    <!-- Current Streak -->
-    <svg x="0" y="80" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
-    <text x="22" y="92" class="label">Current Streak:</text>
-    <text x="220" y="92" class="value" text-anchor="end">${currentStreak} Days</text>
-    <text x="22" y="105" class="range">${currentStreakRange}</text>
+    <!-- Repos (Public) -->
+    <svg x="0" y="74" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 1 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 0 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8v-7.5Z"/></svg>
+    <text x="22" y="86" class="label">Repos (Public):</text>
+    <text x="220" y="86" class="value" text-anchor="end">${publicReposCount}</text>
     
-    <!-- Longest Streak -->
-    <svg x="0" y="115" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
-    <text x="22" y="127" class="label">Longest Streak:</text>
-    <text x="220" y="127" class="value" text-anchor="end">${longestStreak} Days</text>
-    <text x="22" y="140" class="range">${longestStreakRange}</text>
+    <!-- Followers -->
+    <svg x="0" y="97" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M5.5 3.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM2 5.25a2.25 2.25 0 0 1 2.25-2.25h2.5A2.25 2.25 0 0 1 9 5.25v2a.75.75 0 0 1-.75.75h-5.5A.75.75 0 0 1 2 7.25v-2ZM12.75 8h-1.5a.75.75 0 0 0-.75.75v3.5a.75.75 0 0 0 1.5 0v-2.75h.75v2.75a.75.75 0 0 0 1.5 0v-3.5a.75.75 0 0 0-.75-.75ZM12 4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>
+    <text x="22" y="109" class="label">Followers:</text>
+    <text x="220" y="109" class="value" text-anchor="end">${followers}</text>
     
     <!-- Releases -->
-    <svg x="0" y="150" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.5 0A2.5 2.5 0 0 0 0 2.5v11A2.5 2.5 0 0 0 2.5 16h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 13.5 0h-11Zm0 1.5h11a1 1 0 0 1 1 1v6.75l-4-4-3 3-2-2-3 3v-7.75a1 1 0 0 1 1-1Z"/></svg>
-    <text x="22" y="162" class="label">Releases:</text>
-    <text x="220" y="162" class="value" text-anchor="end">${totalReleases} (${totalDownloads} downloads)</text>
+    <svg x="0" y="120" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.5 0A2.5 2.5 0 0 0 0 2.5v11A2.5 2.5 0 0 0 2.5 16h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 13.5 0h-11Zm0 1.5h11a1 1 0 0 1 1 1v6.75l-4-4-3 3-2-2-3 3v-7.75a1 1 0 0 1 1-1Z"/></svg>
+    <text x="22" y="132" class="label">Releases:</text>
+    <text x="220" y="132" class="value" text-anchor="end">${totalReleases} (${totalDownloads} downloads)</text>
   </g>
   
-  <!-- COLUMN 2 (Rank Badge) -->
-  <g transform="translate(300, 140)">
+  <!-- COLUMN 2 (Rank Badge - Shifted right for spacing) -->
+  <g transform="translate(315, 120)">
     <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
     <circle cx="0" cy="0" r="45" class="grade-circle" stroke-dasharray="283" stroke-dashoffset="${strokeDashoffset.toFixed(1)}" transform="rotate(-90)" />
     <text x="0" y="0" class="grade-text">${grade}</text>
   </g>
   
-  <!-- COLUMN 3 -->
-  <g transform="translate(380, 55)">
+  <!-- COLUMN 3 (Shifted right) -->
+  <g transform="translate(395, 55)">
     <!-- Total Stars -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
     <text x="22" y="17" class="label">Total Stars:</text>
-    <text x="195" y="17" class="value" text-anchor="end">${stars}</text>
+    <text x="185" y="17" class="value" text-anchor="end">${stars}</text>
     
     <!-- Total Watchers -->
-    <svg x="0" y="30" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
-    <text x="22" y="42" class="label">Total Watchers:</text>
-    <text x="195" y="42" class="value" text-anchor="end">${watchers}</text>
+    <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
+    <text x="22" y="40" class="label">Total Watchers:</text>
+    <text x="185" y="40" class="value" text-anchor="end">${watchers}</text>
     
     <!-- Total Forks -->
-    <svg x="0" y="55" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM4.25 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 1.5a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z"/></svg>
-    <text x="22" y="67" class="label">Total Forks:</text>
-    <text x="195" y="67" class="value" text-anchor="end">${forks}</text>
+    <svg x="0" y="51" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM4.25 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 1.5a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z"/></svg>
+    <text x="22" y="63" class="label">Total Forks:</text>
+    <text x="185" y="63" class="value" text-anchor="end">${forks}</text>
     
     <!-- Pull Requests -->
-    <svg x="0" y="80" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.292a.25.25 0 0 1-.427.177L7.177 3.073ZM5.75 2h-1.5a2.25 2.25 0 0 0-2.25 2.25v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-1.5a.75.75 0 0 1 1.5 0v1.5a3.75 3.75 0 0 1-3.75 3.75h-7.5A3.75 3.75 0 0 1 .5 11.75v-7.5A3.75 3.75 0 0 1 4.25.5h1.5a.75.75 0 0 1 0 1.5Zm6.48 4.28a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 0Z"/></svg>
-    <text x="22" y="92" class="label">Pull Requests:</text>
-    <text x="195" y="92" class="value" text-anchor="end">${prs}</text>
+    <svg x="0" y="74" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.292a.25.25 0 0 1-.427.177L7.177 3.073ZM5.75 2h-1.5a2.25 2.25 0 0 0-2.25 2.25v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-1.5a.75.75 0 0 1 1.5 0v1.5a3.75 3.75 0 0 1-3.75 3.75h-7.5A3.75 3.75 0 0 1 .5 11.75v-7.5A3.75 3.75 0 0 1 4.25.5h1.5a.75.75 0 0 1 0 1.5Zm6.48 4.28a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 0Z"/></svg>
+    <text x="22" y="86" class="label">Pull Requests:</text>
+    <text x="185" y="86" class="value" text-anchor="end">${prs}</text>
     
     <!-- Code Reviews -->
-    <svg x="0" y="105" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2Zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 5.75ZM5.75 8h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/></svg>
-    <text x="22" y="117" class="label">Code Reviews:</text>
-    <text x="195" y="117" class="value" text-anchor="end">${reviews}</text>
+    <svg x="0" y="97" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2Zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75ZM5 5.75A.75.75 0 0 1 5.75 5h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 5.75ZM5.75 8h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/></svg>
+    <text x="22" y="109" class="label">Code Reviews:</text>
+    <text x="185" y="109" class="value" text-anchor="end">${reviews}</text>
     
     <!-- Issues -->
-    <svg x="0" y="130" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
-    <text x="22" y="142" class="label">Issues:</text>
-    <text x="195" y="142" class="value" text-anchor="end">${issues}</text>
+    <svg x="0" y="120" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
+    <text x="22" y="132" class="label">Issues:</text>
+    <text x="185" y="132" class="value" text-anchor="end">${issues}</text>
   </g>
   
   <!-- Divider -->
-  <line x1="25" y1="255" x2="575" y2="255" class="divider" />
+  <line x1="25" y1="205" x2="575" y2="205" class="divider" />
   
-  <!-- ROW 2: Most Used Languages -->
-  <g transform="translate(25, 275)">
-    <text x="0" y="0" class="lang-title">Most Used Languages</text>
+  <!-- ROW 2: Centered Streak Section -->
+  <g transform="translate(0, 205)">
+    <!-- Current Streak -->
+    <text x="160" y="25" class="streak-text" text-anchor="middle">🔥 Current Streak: <tspan class="value">${currentStreak} Days</tspan> <tspan class="range">(${currentStreakRange})</tspan></text>
     
-    <svg x="0" y="10" width="550" height="12">
+    <!-- Vertical Divider -->
+    <line x1="300" y1="10" x2="300" y2="30" class="divider" />
+    
+    <!-- Longest Streak -->
+    <text x="440" y="25" class="streak-text" text-anchor="middle">🏆 Longest Streak: <tspan class="value">${longestStreak} Days</tspan> <tspan class="range">(${longestStreakRange})</tspan></text>
+  </g>
+  
+  <!-- Divider -->
+  <line x1="25" y1="245" x2="575" y2="245" class="divider" />
+  
+  <!-- ROW 3: Centered Most Used Languages -->
+  <g transform="translate(25, 255)">
+    <!-- Centered Language Header -->
+    <text x="275" y="20" class="lang-title" text-anchor="middle">Most Used Languages</text>
+    
+    <svg x="0" y="30" width="550" height="12">
       <rect width="550" height="12" rx="6" fill="#3b4252"/>
       <clipPath id="bar-clip">
         <rect width="550" height="12" rx="6" />
@@ -423,7 +444,8 @@ async function main() {
       </g>
     </svg>
     
-    <g transform="translate(0, 45)">
+    <!-- Centered Language Grid Legend -->
+    <g transform="translate(50, 55)">
       ${langGridList}
     </g>
   </g>
