@@ -21,7 +21,6 @@ if (!token) {
   process.exit(1);
 }
 
-const currentYear = new Date().getFullYear();
 const query = `
 query {
   viewer {
@@ -93,9 +92,6 @@ query {
         }
       }
     }
-    contributionsSinceJan1: contributionsCollection(from: "${currentYear}-01-01T00:00:00Z") {
-      totalCommitContributions
-    }
   }
 }
 `;
@@ -128,7 +124,7 @@ async function main() {
   const stars = repos.reduce((acc, curr) => acc + curr.stargazerCount, 0);
   const forks = repos.reduce((acc, curr) => acc + curr.forkCount, 0);
   const watchers = repos.reduce((acc, curr) => acc + curr.watchers.totalCount, 0);
-  const commitsThisYear = viewer.contributionsSinceJan1.totalCommitContributions;
+  const commits365Days = viewer.contributionsCollection.totalCommitContributions;
   const publicReposCount = repos.filter(repo => !repo.isPrivate).length;
   
   let commitsOverall = 0;
@@ -346,10 +342,10 @@ async function main() {
   
   <!-- COLUMN 1 -->
   <g transform="translate(25, 55)">
-    <!-- Commits this year -->
+    <!-- Commits 365 Days -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M10.5 7.75a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm1.5 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
-    <text x="22" y="17" class="label">Commits (this year):</text>
-    <text x="195" y="17" class="value" text-anchor="end">${commitsThisYear}</text>
+    <text x="22" y="17" class="label">Commits (365 days):</text>
+    <text x="195" y="17" class="value" text-anchor="end">${commits365Days}</text>
     
     <!-- Total Stars -->
     <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
@@ -388,7 +384,7 @@ async function main() {
   <g transform="translate(380, 55)">
     <!-- Total Contributions -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
-    <text x="22" y="17" class="label">Contributions (Last Year):</text>
+    <text x="22" y="17" class="label">Contributions (365 days):</text>
     <text x="200" y="17" class="value" text-anchor="end">${totalContributionsPastYear}</text>
     
     <!-- Total Watchers -->
