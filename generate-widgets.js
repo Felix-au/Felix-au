@@ -21,126 +21,84 @@ if (!token) {
   process.exit(1);
 }
 
-async function main() {
-  console.log(`📡 Fetching account creation date for ${username}...`);
-  
-  // Step 1: Query createdAt to find out when the account was made
-  const creationRes = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${token}`,
-      'Accept': 'application/vnd.github+json',
-      'User-Agent': 'Node-GitHub-Custom-Widgets-Generator',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      query: `query { viewer { createdAt } }`
-    })
-  });
-  
-  const creationJson = await creationRes.json();
-  if (!creationRes.ok || creationJson.errors) {
-    console.error("❌ Failed to fetch account creation date:", JSON.stringify(creationJson.errors || creationJson));
-    process.exit(1);
-  }
-  
-  const createdAt = creationJson.data.viewer.createdAt;
-  const startYear = new Date(createdAt).getFullYear();
-  const currentYear = new Date().getFullYear();
-  console.log(`📅 Account created in ${startYear}. Fetching year-by-year contributions...`);
-  
-  // Build year queries to calculate all-time contributions
-  let yearQueries = '';
-  for (let year = startYear; year <= currentYear; year++) {
-    const fromStr = `${year}-01-01T00:00:00Z`;
-    const toStr = year === currentYear ? new Date().toISOString() : `${year}-12-31T23:59:59Z`;
-    yearQueries += `
-    contribs${year}: contributionsCollection(from: "${fromStr}", to: "${toStr}") {
+const query = `
+query {
+  viewer {
+    name
+    login
+    followers {
+      totalCount
+    }
+    pullRequests {
+      totalCount
+    }
+    issues {
+      totalCount
+    }
+    repositoriesContributedTo(contributionTypes: [COMMIT, PULL_REQUEST, PULL_REQUEST_REVIEW, ISSUE]) {
+      totalCount
+    }
+    repositories(first: 100, ownerAffiliations: OWNER) {
+      nodes {
+        name
+        isPrivate
+        stargazerCount
+        forkCount
+        watchers {
+          totalCount
+        }
+        defaultBranchRef {
+          target {
+            ... on Commit {
+              history {
+                totalCount
+              }
+            }
+          }
+        }
+        releases(first: 20) {
+          totalCount
+          nodes {
+            releaseAssets(first: 20) {
+              nodes {
+                downloadCount
+              }
+            }
+          }
+        }
+        languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+          edges {
+            size
+            node {
+              name
+              color
+            }
+          }
+        }
+      }
+    }
+    contributionsCollection {
       totalCommitContributions
+      totalPullRequestContributions
+      totalIssueContributions
+      totalPullRequestReviewContributions
       contributionCalendar {
         totalContributions
-      }
-    }`;
-  }
-
-  // Step 2: Query main stats with dynamically attached year aliases
-  const query = `
-  query {
-    viewer {
-      name
-      login
-      followers {
-        totalCount
-      }
-      pullRequests {
-        totalCount
-      }
-      issues {
-        totalCount
-      }
-      repositoriesContributedTo(contributionTypes: [COMMIT, PULL_REQUEST, PULL_REQUEST_REVIEW, ISSUE]) {
-        totalCount
-      }
-      repositories(first: 100, ownerAffiliations: OWNER) {
-        nodes {
-          name
-          isPrivate
-          stargazerCount
-          forkCount
-          watchers {
-            totalCount
-          }
-          defaultBranchRef {
-            target {
-              ... on Commit {
-                history {
-                  totalCount
-                }
-              }
-            }
-          }
-          releases(first: 20) {
-            totalCount
-            nodes {
-              releaseAssets(first: 20) {
-                nodes {
-                  downloadCount
-                }
-              }
-            }
-          }
-          languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
-            edges {
-              size
-              node {
-                name
-                color
-              }
-            }
+        weeks {
+          contributionDays {
+            contributionCount
+            date
           }
         }
       }
-      contributionsCollection {
-        totalCommitContributions
-        totalPullRequestContributions
-        totalIssueContributions
-        totalPullRequestReviewContributions
-        contributionCalendar {
-          totalContributions
-          weeks {
-            contributionDays {
-              contributionCount
-              date
-            }
-          }
-        }
-      }
-      ${yearQueries}
     }
   }
-  `;
+}
+`;
 
-  console.log(`📡 Fetching complete stats from GitHub GraphQL API...`);
+async function main() {
+  console.log(`📡 Fetching stats from GitHub GraphQL API for ${username}...`);
+  
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
@@ -162,12 +120,11 @@ async function main() {
   const name = viewer.name || viewer.login;
   const repos = viewer.repositories.nodes;
   
-  // Calculate stats
+  // 1. Gather stats
   const stars = repos.reduce((acc, curr) => acc + curr.stargazerCount, 0);
   const forks = repos.reduce((acc, curr) => acc + curr.forkCount, 0);
   const watchers = repos.reduce((acc, curr) => acc + curr.watchers.totalCount, 0);
-  const currentYearAlias = `contribs${currentYear}`;
-  const commitsThisYear = viewer[currentYearAlias] ? viewer[currentYearAlias].totalCommitContributions : 0;
+  const commitsThisYear = viewer.contributionsCollection.totalCommitContributions;
   const publicReposCount = repos.filter(repo => !repo.isPrivate).length;
   
   let commitsOverall = 0;
@@ -198,16 +155,6 @@ async function main() {
   const issues = viewer.issues.totalCount;
   const reviews = viewer.contributionsCollection.totalPullRequestReviewContributions;
   const contributedTo = viewer.repositoriesContributedTo.totalCount;
-  
-  // Sum contributions across all years since account creation
-  let totalContributionsAllTime = 0;
-  for (let year = startYear; year <= currentYear; year++) {
-    const key = `contribs${year}`;
-    if (viewer[key] && viewer[key].contributionCalendar) {
-      totalContributionsAllTime += viewer[key].contributionCalendar.totalContributions || 0;
-    }
-  }
-  console.log(`🎉 Total All-Time Contributions calculated: ${totalContributionsAllTime}`);
   
   // 2. Grade calculation
   const score = stars * 4 + commitsOverall * 0.1 + prs * 2 + issues * 1 + reviews * 2;
@@ -336,6 +283,7 @@ async function main() {
   
   const currentStreakRange = formatDateRange(currentStart, currentEnd);
   const longestStreakRange = formatDateRange(longestStart, longestEnd);
+  const totalContributionsPastYear = calendar.totalContributions;
   
   // 5. Render SVGs
   console.log(`🎨 Rendering Custom Unified SVG widget...`);
@@ -426,7 +374,7 @@ async function main() {
   </g>
   
   <!-- COLUMN 2 (Rank Badge) -->
-  <g transform="translate(310, 120)">
+  <g transform="translate(305, 120)">
     <circle cx="0" cy="0" r="45" class="grade-circle-bg" />
     <circle cx="0" cy="0" r="45" class="grade-circle" stroke-dasharray="283" stroke-dashoffset="${strokeDashoffset.toFixed(1)}" transform="rotate(-90)" />
     <text x="0" y="0" class="grade-text">${grade}</text>
@@ -437,7 +385,7 @@ async function main() {
     <!-- Total Contributions -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
     <text x="22" y="17" class="label">Total Contributions:</text>
-    <text x="190" y="17" class="value" text-anchor="end">${totalContributionsAllTime}</text>
+    <text x="190" y="17" class="value" text-anchor="end">${totalContributionsPastYear}</text>
     
     <!-- Total Watchers -->
     <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
