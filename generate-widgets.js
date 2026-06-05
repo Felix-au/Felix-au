@@ -21,6 +21,7 @@ if (!token) {
   process.exit(1);
 }
 
+const currentYear = new Date().getFullYear();
 const query = `
 query {
   viewer {
@@ -92,6 +93,9 @@ query {
         }
       }
     }
+    contributionsSinceJan1: contributionsCollection(from: "${currentYear}-01-01T00:00:00Z") {
+      totalCommitContributions
+    }
   }
 }
 `;
@@ -124,7 +128,7 @@ async function main() {
   const stars = repos.reduce((acc, curr) => acc + curr.stargazerCount, 0);
   const forks = repos.reduce((acc, curr) => acc + curr.forkCount, 0);
   const watchers = repos.reduce((acc, curr) => acc + curr.watchers.totalCount, 0);
-  const commitsThisYear = viewer.contributionsCollection.totalCommitContributions;
+  const commitsThisYear = viewer.contributionsSinceJan1.totalCommitContributions;
   const publicReposCount = repos.filter(repo => !repo.isPrivate).length;
   
   let commitsOverall = 0;
