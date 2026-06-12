@@ -104,7 +104,7 @@
   <!-- ROW 2: Centered Streak Section -->
   <g transform="translate(0, 200)">
     <!-- Current Streak -->
-    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">1 Days</tspan> <tspan class="streak-range">(Jun 11 - Jun 11)</tspan></text>
+    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">0 Days</tspan> <tspan class="streak-range">(No active streak)</tspan></text>
     
     <!-- Vertical Divider -->
     <line x1="300" y1="8" x2="300" y2="38" class="divider" />
