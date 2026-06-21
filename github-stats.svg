@@ -30,7 +30,7 @@
     <!-- Commits 365 Days -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M10.5 7.75a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm1.5 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 0ZM8 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM3 8a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 3 8Zm11.5.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Z"/></svg>
     <text x="22" y="17" class="label">Commits (365 days):</text>
-    <text x="195" y="17" class="value" text-anchor="end">4451</text>
+    <text x="195" y="17" class="value" text-anchor="end">4466</text>
     
     <!-- Total Stars -->
     <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
@@ -55,7 +55,7 @@
     <!-- Releases -->
     <svg x="0" y="120" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M2.5 0A2.5 2.5 0 0 0 0 2.5v11A2.5 2.5 0 0 0 2.5 16h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 13.5 0h-11Zm0 1.5h11a1 1 0 0 1 1 1v6.75l-4-4-3 3-2-2-3 3v-7.75a1 1 0 0 1 1-1Z"/></svg>
     <text x="22" y="132" class="label">Releases:</text>
-    <text x="195" y="132" class="value" text-anchor="end">29</text>
+    <text x="195" y="132" class="value" text-anchor="end">30</text>
   </g>
   
   <!-- COLUMN 2 (Rank Badge) -->
@@ -70,7 +70,7 @@
     <!-- Total Contributions -->
     <svg x="0" y="5" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>
     <text x="22" y="17" class="label">Contributions (365 days):</text>
-    <text x="200" y="17" class="value" text-anchor="end">5112</text>
+    <text x="200" y="17" class="value" text-anchor="end">5127</text>
     
     <!-- Total Watchers -->
     <svg x="0" y="28" width="14" height="14" viewBox="0 0 16 16" class="icon"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.267 2.445 2.872 3.593a.75.75 0 0 1-.001.658c-.605 1.147-1.602 2.502-2.872 3.593C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83 .8 9.476.196 8.329a.75.75 0 0 1 .001-.658c.605-1.147 1.602-2.502 2.872-3.593C4.329 2.992 6.019 2 8 2ZM2.052 8c.552 1.01 1.436 2.222 2.548 3.18C5.7 12.138 7.006 12.5 8 12.5c.994 0 2.3-.362 3.4-1.32 1.112-.958 1.996-2.17 2.548-3.18-.552-1.01-1.436-2.222-2.548-3.18C10.3 3.862 8.994 3.5 8 3.5c-.994 0-2.3.362-3.4 1.32-1.112.958-1.996 2.17-2.548 3.18ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
@@ -104,13 +104,13 @@
   <!-- ROW 2: Centered Streak Section -->
   <g transform="translate(0, 200)">
     <!-- Current Streak -->
-    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">141 Days</tspan> <tspan class="streak-range">(Feb 1 - Jun 21)</tspan></text>
+    <text x="160" y="28" class="streak-title" text-anchor="middle">🔥 Current Streak: <tspan class="streak-val">142 Days</tspan> <tspan class="streak-range">(Feb 1 - Jun 22)</tspan></text>
     
     <!-- Vertical Divider -->
     <line x1="300" y1="8" x2="300" y2="38" class="divider" />
     
     <!-- Longest Streak -->
-    <text x="440" y="28" class="streak-title" text-anchor="middle">🏆 Longest Streak: <tspan class="streak-val">141 Days</tspan> <tspan class="streak-range">(Feb 1 - Jun 21)</tspan></text>
+    <text x="440" y="28" class="streak-title" text-anchor="middle">🏆 Longest Streak: <tspan class="streak-val">142 Days</tspan> <tspan class="streak-range">(Feb 1 - Jun 22)</tspan></text>
   </g>
   
   <!-- Divider -->
@@ -127,11 +127,11 @@
         <rect width="550" height="12" rx="6" />
       </clipPath>
       <g clip-path="url(#bar-clip)">
-        <rect x="0.0" width="234.2" height="12" fill="#3178c6" />
-<rect x="234.2" width="179.9" height="12" fill="#b07219" />
-<rect x="414.1" width="66.8" height="12" fill="#f1e05a" />
-<rect x="480.9" width="30.4" height="12" fill="#663399" />
-<rect x="511.3" width="28.5" height="12" fill="#3572A5" />
+        <rect x="0.0" width="234.6" height="12" fill="#3178c6" />
+<rect x="234.6" width="179.7" height="12" fill="#b07219" />
+<rect x="414.3" width="66.7" height="12" fill="#f1e05a" />
+<rect x="481.0" width="30.4" height="12" fill="#663399" />
+<rect x="511.4" width="28.5" height="12" fill="#3572A5" />
 <rect x="539.9" width="9.5" height="12" fill="#e34c26" />
 
       </g>
@@ -142,19 +142,19 @@
       
     <g transform="translate(0, 0)">
       <circle cx="5" cy="6" r="5" fill="#3178c6" />
-      <text x="18" y="10" class="lang-name">TypeScript <tspan class="lang-percent">42.58%</tspan></text>
+      <text x="18" y="10" class="lang-name">TypeScript <tspan class="lang-percent">42.65%</tspan></text>
     </g>
     <g transform="translate(175, 0)">
       <circle cx="5" cy="6" r="5" fill="#b07219" />
-      <text x="18" y="10" class="lang-name">Java <tspan class="lang-percent">32.72%</tspan></text>
+      <text x="18" y="10" class="lang-name">Java <tspan class="lang-percent">32.68%</tspan></text>
     </g>
     <g transform="translate(350, 0)">
       <circle cx="5" cy="6" r="5" fill="#f1e05a" />
-      <text x="18" y="10" class="lang-name">JavaScript <tspan class="lang-percent">12.15%</tspan></text>
+      <text x="18" y="10" class="lang-name">JavaScript <tspan class="lang-percent">12.13%</tspan></text>
     </g>
     <g transform="translate(0, 22)">
       <circle cx="5" cy="6" r="5" fill="#663399" />
-      <text x="18" y="10" class="lang-name">CSS <tspan class="lang-percent">5.53%</tspan></text>
+      <text x="18" y="10" class="lang-name">CSS <tspan class="lang-percent">5.52%</tspan></text>
     </g>
     <g transform="translate(175, 22)">
       <circle cx="5" cy="6" r="5" fill="#3572A5" />
