@@ -156,5 +156,5 @@ I am a **Systems Programmer, AI Engineer, and Full-Stack Developer** passionate 
 
 ## 📬 Connect with Me
 
-- **Email:** [harshit.soni.23cse@bmu.edu.in](mailto:harshit.soni.23cse@bmu.edu.in)
+- **Email:** [felixaugum@gmail.com](mailto:felixaugum@gmail.com)
 - **GitHub:** [github.com/Felix-au](https://github.com/Felix-au)
